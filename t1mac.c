@@ -33,7 +33,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <time.h>
-#include <lcdf/clp.h>
+#include "include/lcdf/clp.h"
 #include "t1lib.h"
 
 #ifdef __cplusplus
@@ -71,11 +71,11 @@ static char *font_name;
 
 /* information about the resources being built */
 typedef struct Rsrc {
-  int32_t type;
+  intptr_t type;
   int id;
   int attrs;
   int data_offset;
-  uint32_t data_len;
+  uintptr_t data_len;
   int next_in_type;
   int next_type;
 } Rsrc;
@@ -219,7 +219,7 @@ static const unsigned char small_icon_4_data[] = {
 /* fseek with fatal_error */
 
 static void
-reposition(FILE *fi, int32_t absolute)
+reposition(FILE *fi, intptr_t absolute)
 {
   if (fseek(fi, absolute, 0) == -1)
     fatal_error("can't seek to position %d", absolute);
@@ -242,7 +242,7 @@ write_two(int c, FILE *f)
 }
 
 static void
-write_three(int32_t c, FILE *f)
+write_three(intptr_t c, FILE *f)
 {
   putc((c >> 16) & 255, f);
   putc((c >> 8) & 255, f);
@@ -250,7 +250,7 @@ write_three(int32_t c, FILE *f)
 }
 
 static void
-write_four(int32_t c, FILE *f)
+write_four(intptr_t c, FILE *f)
 {
   putc((c >> 24) & 255, f);
   putc((c >> 16) & 255, f);
@@ -275,7 +275,7 @@ store_two(int c, char *s)
 }
 
 static void
-store_four(int32_t c, char *s)
+store_four(intptr_t c, char *s)
 {
   s[0] = (char)((c >> 24) & 255);
   s[1] = (char)((c >> 16) & 255);
@@ -285,7 +285,7 @@ store_four(int32_t c, char *s)
 
 static void
 output_new_rsrc(const char *rtype, int rid, int attrs,
-		const char *data, uint32_t len)
+		const char *data, uintptr_t len)
 {
   Rsrc *r;
   if (nrsrc >= rsrc_cap) {
@@ -404,11 +404,11 @@ t1mac_output_end(void)
 
 /* finish off the resource fork */
 
-static uint32_t
+static uintptr_t
 complete_rfork(void)
 {
-  uint32_t reflist_offset, total_data_len;
-  uint32_t typelist_len;
+  uintptr_t reflist_offset, total_data_len;
+  uintptr_t typelist_len;
   int i, j, ntypes;
 
   /* analyze resources */
@@ -481,7 +481,7 @@ complete_rfork(void)
 /* write a MacBinary II file */
 
 static void
-output_raw(FILE *rf, int32_t len, FILE *f)
+output_raw(FILE *rf, intptr_t len, FILE *f)
 {
   char buf[2048];
   reposition(rf, 0);
@@ -494,7 +494,7 @@ output_raw(FILE *rf, int32_t len, FILE *f)
 }
 
 static void
-output_macbinary(FILE *rf, int32_t rf_len, const char *filename, FILE *f)
+output_macbinary(FILE *rf, intptr_t rf_len, const char *filename, FILE *f)
 {
   int i, len = strlen(filename);
   char buf[128];
@@ -557,10 +557,10 @@ output_macbinary(FILE *rf, int32_t rf_len, const char *filename, FILE *f)
 #define APPLESINGLE_REALNAME_ENTRY 3
 
 static void
-output_applesingle(FILE *rf, int32_t rf_len, const char *filename, FILE *f,
+output_applesingle(FILE *rf, intptr_t rf_len, const char *filename, FILE *f,
 		   int appledouble)
 {
-  uint32_t offset;
+  uintptr_t offset;
   int i, nentries, len = strlen(filename);
   if (appledouble)		/* magic number */
     write_four(APPLEDOUBLE_MAGIC, f);
@@ -693,7 +693,7 @@ binhex_buffer(const byte *s, int len, FILE *f)
 }
 
 static void
-output_binhex(FILE *rf, int32_t rf_len, const char *filename, FILE *f)
+output_binhex(FILE *rf, intptr_t rf_len, const char *filename, FILE *f)
 {
   int crc, len = strlen(filename);
   char buf[2048];
@@ -836,7 +836,7 @@ main(int argc, char *argv[])
   const char *ofp_filename = "<stdout>";
   const char *set_font_name = 0;
   struct font_reader fr;
-  uint32_t rfork_len;
+  uintptr_t rfork_len;
   int raw = 0, macbinary = 1, applesingle = 0, appledouble = 0, binhex = 0;
 
   Clp_Parser *clp =
@@ -898,7 +898,6 @@ main(int argc, char *argv[])
       break;
 
      case VERSION_OPT:
-      printf("t1mac (LCDF t1utils) %s\n", VERSION);
       printf("Copyright (C) 2000-2017 Eddie Kohler et al.\n\
 This is free software; see the source for copying conditions.\n\
 There is NO warranty, not even for merchantability or fitness for a\n\

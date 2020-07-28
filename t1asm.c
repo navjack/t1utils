@@ -64,9 +64,12 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <lcdf/clp.h>
+#include "include/lcdf/clp.h"
 #include "t1lib.h"
 #include "t1asmhelp.h"
+#ifdef HAVE_INTTYPES_H
+#include "include/lcdf/inttypes.h"
+#endif
 
 #define LINESIZE 512
 
@@ -96,9 +99,9 @@ static byte *charstring_buf, *charstring_bp;
 static int charstring_bufsiz;
 
 /* decryption stuff */
-static uint16_t er, cr;
-static const uint32_t c1 = 52845;
-static const uint32_t c2 = 22719;
+static uintptr_t er, cr;
+static const uintptr_t c1 = 52845;
+static const uintptr_t c2 = 22719;
 
 /* table of charstring commands */
 static struct command {
@@ -178,7 +181,7 @@ static byte eencrypt(byte plain)
   byte cipher;
 
   cipher = (byte)(plain ^ (er >> 8));
-  er = (uint16_t)((cipher + er) * c1 + c2);
+  er = (uintptr_t)((cipher + er) * c1 + c2);
   return cipher;
 }
 
@@ -191,7 +194,7 @@ static byte cencrypt(byte plain)
   if (lenIV < 0) return plain;
 
   cipher = (byte)(plain ^ (cr >> 8));
-  cr = (uint16_t)((cipher + cr) * c1 + c2);
+  cr = (uintptr_t)((cipher + cr) * c1 + c2);
   return cipher;
 }
 
@@ -663,7 +666,6 @@ int main(int argc, char *argv[])
       break;
 
      case VERSION_OPT:
-      printf("t1asm (LCDF t1utils) %s\n", VERSION);
       printf("Copyright (C) 1992-2017 I. Lee Hetherington, Eddie Kohler et al.\n\
 This is free software; see the source for copying conditions.\n\
 There is NO warranty, not even for merchantability or fitness for a\n\

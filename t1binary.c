@@ -50,7 +50,7 @@
 #include <limits.h>
 #include <stdarg.h>
 #include <errno.h>
-#include <lcdf/clp.h>
+#include "include/lcdf/clp.h"
 #include "t1lib.h"
 
 #ifdef __cplusplus
@@ -214,7 +214,6 @@ main(int argc, char *argv[])
       break;
 
      case VERSION_OPT:
-      printf("t1binary (LCDF t1utils) %s\n", VERSION);
       printf("Copyright (C) 1992-2017 I. Lee Hetherington, Eddie Kohler et al.\n\
 This is free software; see the source for copying conditions.\n\
 There is NO warranty, not even for merchantability or fitness for a\n\

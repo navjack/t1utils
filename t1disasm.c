@@ -68,7 +68,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <assert.h>
-#include <lcdf/clp.h>
+#include "include/lcdf/clp.h"
 #include "t1lib.h"
 #include "t1asmhelp.h"
 
@@ -82,10 +82,10 @@ static FILE *ofp;
 static int unknown = 0;
 
 /* decryption stuff */
-static const uint32_t c1 = 52845;
-static const uint32_t c2 = 22719;
-static uint16_t cr_default = 4330;
-static uint16_t er_default = 55665;
+static const uintptr_t c1 = 52845;
+static const uintptr_t c2 = 22719;
+static uintptr_t cr_default = 4330;
+static uintptr_t er_default = 55665;
 
 static int error_count = 0;
 
@@ -123,19 +123,19 @@ static void
 decrypt_charstring(unsigned char *line, int len)
 {
   int i;
-  int32_t val;
+  intptr_t val;
   char buf[20];
 
   /* decrypt charstring */
   if (lenIV >= 0) {
     /* only decrypt if lenIV >= 0 -- negative lenIV means unencrypted
        charstring. Thanks to Tom Kacvinsky <tjk@ams.org> */
-    uint16_t cr = cr_default;
+    uintptr_t cr = cr_default;
     byte plain;
     for (i = 0; i < len; i++) {
       byte cipher = line[i];
       plain = (byte)(cipher ^ (cr >> 8));
-      cr = (uint16_t)((cipher + cr) * c1 + c2);
+      cr = (uintptr_t)((cipher + cr) * c1 + c2);
       line[i] = plain;
     }
     line += lenIV;
@@ -156,17 +156,17 @@ decrypt_charstring(unsigned char *line, int len)
         i++;
         val = -(b - 251)*256 - 108 - line[i];
       } else {
-        uint32_t uval;
-        uval =  (uint32_t) line[i+1] << 24;
-        uval |= (uint32_t) line[i+2] << 16;
-        uval |= (uint32_t) line[i+3] <<  8;
-        uval |= (uint32_t) line[i+4] <<  0;
+        uintptr_t uval;
+        uval =  (uintptr_t) line[i+1] << 24;
+        uval |= (uintptr_t) line[i+2] << 16;
+        uval |= (uintptr_t) line[i+3] <<  8;
+        uval |= (uintptr_t) line[i+4] <<  0;
         /* in case an int32 is larger than four bytes---sign extend */
 #if INT_MAX > 0x7FFFFFFFUL
         if (uval & 0x80000000U)
           uval |= ~0x7FFFFFFFU;
 #endif
-        val = (int32_t) uval;
+        val = (intptr_t) uval;
         i += 4;
       }
       sprintf(buf, "%d", val);
@@ -508,7 +508,7 @@ static void
 disasm_output_binary(unsigned char *data, int len)
 {
     static int ignore_newline;
-    static uint16_t er;
+    static uintptr_t er;
 
     byte plain;
     int i;
@@ -529,7 +529,7 @@ disasm_output_binary(unsigned char *data, int len)
         for (i = 0; i < len && in_eexec < 4; i++, in_eexec++) {
             byte cipher = data[i];
             plain = (byte)(cipher ^ (er >> 8));
-            er = (uint16_t)((cipher + er) * c1 + c2);
+            er = (uintptr_t)((cipher + er) * c1 + c2);
             data[i] = plain;
         }
         data += i;
@@ -545,7 +545,7 @@ disasm_output_binary(unsigned char *data, int len)
         for (; i < len; i++) {
             byte cipher = data[i];
             plain = (byte)(cipher ^ (er >> 8));
-            er = (uint16_t)((cipher + er) * c1 + c2);
+            er = (uintptr_t)((cipher + er) * c1 + c2);
             data[i] = plain;
             if (plain == '\r' || plain == '\n')
                 break;
@@ -686,7 +686,6 @@ main(int argc, char *argv[])
       break;
 
      case VERSION_OPT:
-      printf("t1disasm (LCDF t1utils) %s\n", VERSION);
       printf("Copyright (C) 1992-2017 I. Lee Hetherington, Eddie Kohler et al.\n\
 This is free software; see the source for copying conditions.\n\
 There is NO warranty, not even for merchantability or fitness for a\n\

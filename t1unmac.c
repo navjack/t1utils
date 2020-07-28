@@ -41,7 +41,7 @@
 #endif
 #if defined(_MSDOS) || defined(_WIN32)
 # include <fcntl.h>
-# include <getopt.h>
+# include "include/lcdf/getopt.h"
 # include <io.h>
 #endif
 #include <stdio.h>
@@ -51,7 +51,7 @@
 #include <string.h>
 #include <errno.h>
 #include <ctype.h>
-#include <lcdf/clp.h>
+#include "include/lcdf/clp.h"
 #include "t1lib.h"
 
 #ifdef __cplusplus
@@ -78,10 +78,10 @@ read_two(FILE *fi)
   return val;
 }
 
-static int32_t
+static intptr_t
 read_three(FILE *fi)
 {
-  int32_t val;
+  intptr_t val;
 
   val = getc(fi);
   val = (val << 8) | getc(fi);
@@ -90,10 +90,10 @@ read_three(FILE *fi)
   return val;
 }
 
-static int32_t
+static intptr_t
 read_four(FILE *fi)
 {
-  int32_t val;
+  intptr_t val;
 
   val = getc(fi);
   val = (val << 8) | getc(fi);
@@ -106,7 +106,7 @@ read_four(FILE *fi)
 /* reposition a file with error messages */
 
 static void
-reposition(FILE *fi, int32_t absolute)
+reposition(FILE *fi, intptr_t absolute)
 {
   if (fseek(fi, absolute, 0) == -1)
     fatal_error("can't seek to position %d\n\
@@ -142,12 +142,12 @@ output_hex_byte(FILE *fo, int b)
    first. */
 
 static int
-extract_data(FILE *fi, FILE *fo, struct pfb_writer *w, int32_t offset, int pfb)
+extract_data(FILE *fi, FILE *fo, struct pfb_writer *w, intptr_t offset, int pfb)
 {
   enum PS_type { PS_ascii = 1, PS_binary = 2, PS_end = 5 };
   static int last_type = -1;
   static int skip_newline = 0;
-  int32_t len;
+  intptr_t len;
   int more = 1;
   int i, c;
 
@@ -551,8 +551,8 @@ main(int argc, char *argv[])
   FILE *ofp = 0;
   struct pfb_writer w;
   const char *ifp_name = "<stdin>";
-  int32_t res_offset, res_data_offset, res_map_offset, type_list_offset;
-  int32_t post_type;
+  intptr_t res_offset, res_data_offset, res_map_offset, type_list_offset;
+  intptr_t post_type;
   int num_types, num_extracted = 0, pfb = 1;
   int raw = 0, appledouble = 0, binhex = 0, macbinary = 0;
 
@@ -615,7 +615,6 @@ main(int argc, char *argv[])
       break;
 
      case VERSION_OPT:
-      printf("t1unmac (LCDF t1utils) %s\n", VERSION);
       printf("Copyright (C) 1992-2017 I. Lee Hetherington, Eddie Kohler et al.\n\
 This is free software; see the source for copying conditions.\n\
 There is NO warranty, not even for merchantability or fitness for a\n\
@@ -730,7 +729,7 @@ particular purpose.\n");
 
   } else if (macbinary) {	/* MacBinary (I or II) file */
     const char *check;
-    int32_t data_fork_size;
+    intptr_t data_fork_size;
 
     /* check integrity of file */
     check = check_macbinary(ifp);
@@ -822,10 +821,10 @@ particular purpose.\n");
   num_types = read_two(ifp) + 1;
 
   /* find POST type */
-  post_type =  (int32_t)('P' & 0xff) << 24;
-  post_type |= (int32_t)('O' & 0xff) << 16;
-  post_type |= (int32_t)('S' & 0xff) << 8;
-  post_type |= (int32_t)('T' & 0xff);
+  post_type =  (intptr_t)('P' & 0xff) << 24;
+  post_type |= (intptr_t)('O' & 0xff) << 16;
+  post_type |= (intptr_t)('S' & 0xff) << 8;
+  post_type |= (intptr_t)('T' & 0xff);
 
   while (num_types--) {
     if (read_four(ifp) == post_type) {
@@ -881,7 +880,7 @@ particular purpose.\n");
   while (num_types--) {
     int t = read_four(ifp);
     int num_of_type = 1 + read_two(ifp);
-    int32_t save_offset = ftell(ifp) + 2;
+    intptr_t save_offset = ftell(ifp) + 2;
     reposition(ifp, type_list_offset + read_two(ifp));
     while (num_of_type--) {
       FILE *f;

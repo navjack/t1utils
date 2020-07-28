@@ -1,0 +1,6 @@
+﻿  t1unmac.c
+C:\Users\jackm\Downloads\t1utils-master\t1utils-master\t1unmac.c(44): error : cannot open source file "getopt.h"
+    # include <getopt.h>
+                        ^
+  
+  compilation aborted for t1unmac.c (code 4)
